@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class CustomRenderPipeline : RenderPipeline 
+public class CustomRenderPipeline : RenderPipeline
 {
 
     RenderTexture gDepth;

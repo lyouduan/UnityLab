@@ -24,7 +24,7 @@ public class Lighting
         buffer.Clear();
     }
 
-    void SetupDirectionalLight() 
+    void SetupDirectionalLight()
     {
         Light light = RenderSettings.sun;
         buffer.SetGlobalVector(dirLightColorId, light.color.linear * light.intensity);
