@@ -35,7 +35,7 @@ public class CustomRenderPipeline : RenderPipeline
 
         // culling
         cam.TryGetCullingParameters(out var cullingParams);
-        var cuulingResults = context.Cull(ref cullingParams);
+        var cullingResults = context.Cull(ref cullingParams);
 
         // config settings
         ShaderTagId shaderTagId = new ShaderTagId("GBuffer");
@@ -43,7 +43,7 @@ public class CustomRenderPipeline : RenderPipeline
         DrawingSettings drawingSettings = new DrawingSettings(shaderTagId, sortingSettings);
         FilteringSettings filteringSettings = FilteringSettings.defaultValue;
 
-        context.DrawRenderers(cuulingResults, ref drawingSettings, ref filteringSettings);
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
 
         LightPass(context, cam);
 
