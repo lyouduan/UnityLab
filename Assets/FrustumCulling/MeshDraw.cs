@@ -23,13 +23,22 @@ public class ExampleClass : MonoBehaviour
     int kernelId;
     Camera mainCamera;
 
+    // Hi-Z
+    public GenerateHiZ generateHiZ;
+    int  vpMatrixId, hizTextureId;
     void Start()
     { 
+
         kernelId = computeShader.FindKernel("FrustumCulling");
+        vpMatrixId = Shader.PropertyToID("vpMatrix");
+        hizTextureId = Shader.PropertyToID("hizTexture");
+        computeShader.SetInt("depthTextureSize", generateHiZ.depthTextureSize);
+
         cullResult = new ComputeBuffer(instanceCount, sizeof(float)* 16, ComputeBufferType.Append);
         mainCamera = Camera.main;
         argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
         UpdateBuffers();
+
     }
 
     void Update()
@@ -49,9 +58,16 @@ public class ExampleClass : MonoBehaviour
         computeShader.SetBuffer(kernelId, "cullingResults", cullResult);
         computeShader.SetVectorArray("planes", planes);
         computeShader.SetInt("instanceCount", instanceCount);
-        computeShader.Dispatch(kernelId, 1 + (instanceCount / 512), 1, 1);
+        Matrix4x4 matrix = GL.GetGPUProjectionMatrix(mainCamera.projectionMatrix, false) * mainCamera.worldToCameraMatrix;
+        computeShader.SetMatrix("vpMatrix", matrix);
+        
+        computeShader.SetTexture(kernelId, hizTextureId, generateHiZ.depthTexture);
 
+        computeShader.Dispatch(kernelId, 1 + (instanceCount / 512), 1, 1);
         instanceMaterial.SetBuffer("positionBuffer", cullResult);
+
+        ComputeBuffer.CopyCount(cullResult, argsBuffer, sizeof(uint));
+
         // Render
         Graphics.DrawMeshInstancedIndirect(instanceMesh, subMeshIndex, instanceMaterial, new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f)), argsBuffer);
     }
@@ -102,6 +118,7 @@ public class ExampleClass : MonoBehaviour
         {
             args[0] = args[1] = args[2] = args[3] = 0;
         }
+
         argsBuffer.SetData(args);
 
         cachedInstanceCount = instanceCount;

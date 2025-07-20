@@ -8,6 +8,8 @@
 
             Tags {"LightMode"="ForwardBase"}
 
+            Cull Back
+            
             CGPROGRAM
 
             #pragma vertex vert
